@@ -39,7 +39,7 @@ const startServer = async () => {
     await createConnection();
 
     const game = new Game();
-    game.name = "Mein erstes Spiel";
+    game.name = "First game!";
     game.state = "{}";
     await game.save();
 
