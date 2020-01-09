@@ -28,12 +28,16 @@ const getUser = (token: string) => {
 
 const startServer = async () => {
     const server = new ApolloServer({
-        typeDefs, resolvers, context: ({ req }) => {
+        typeDefs,
+        resolvers,
+        context: ({ req }) => {
             const token = req.headers.authorization || ''
             const user = getUser(token);
 
             return { models: { User, Game }, user };
-        }
+        },
+        introspection: true,
+        playground: true,
     });
 
     await createConnection();
