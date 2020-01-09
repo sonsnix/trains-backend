@@ -5,9 +5,7 @@
    "devDependencies": {
       "@types/dotenv": "^8.2.0",
       "@types/node": "^8.0.29",
-      "ts-node": "3.3.0",
-      "ts-node-dev": "^1.0.0-pre.44",
-      "typescript": "3.3.3333"
+      "ts-node-dev": "^1.0.0-pre.44"
    },
    "dependencies": {
       "@types/jsonwebtoken": "^8.3.5",
@@ -19,9 +17,14 @@
       "node-fetch": "^2.6.0",
       "pg": "^7.3.0",
       "reflect-metadata": "^0.1.10",
+      "ts-node": "3.3.0",
+      "typescript": "3.3.3333",
       "typeorm": "0.2.22"
    },
    "scripts": {
-      "start": "ts-node src/index.ts"
+      "start:dev": "ts-node src/index.ts",
+      "build": "tsc",
+      "postinstall": "npm run build",
+      "start": "node dist/index.js"
    }
 }
