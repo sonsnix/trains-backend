@@ -22,9 +22,9 @@
       "typeorm": "0.2.22"
    },
    "scripts": {
-      "start:dev": "ts-node src/index.ts",
+      "start": "ts-node src/index.ts",
       "build": "tsc",
       "postinstall": "npm run build",
-      "start": "node dist/index.js"
+      "start2": "node dist/index.js"
    }
 }
