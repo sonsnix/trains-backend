@@ -1,30 +1,37 @@
 {
-   "name": "trains-backend",
-   "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
-   "devDependencies": {
-      "@types/dotenv": "^8.2.0",
-      "@types/node": "^8.0.29",
-      "ts-node-dev": "^1.0.0-pre.44"
-   },
-   "dependencies": {
-      "@types/jsonwebtoken": "^8.3.5",
-      "@types/node-fetch": "^2.5.4",
-      "apollo-server-express": "^2.9.15",
-      "express": "^4.17.1",
-      "graphql": "^14.5.8",
-      "jsonwebtoken": "^8.5.1",
-      "node-fetch": "^2.6.0",
-      "pg": "^7.3.0",
-      "reflect-metadata": "^0.1.10",
-      "ts-node": "3.3.0",
-      "typescript": "3.3.3333",
-      "typeorm": "0.2.22"
-   },
-   "scripts": {
-      "start:dev": "ts-node src/index.ts",
-      "build": "tsc",
-      "postinstall": "npm run build",
-      "start": "node dist/index.js"
-   }
+    "name": "trains-backend",
+    "version": "0.0.1",
+    "description": "Awesome project developed with TypeORM.",
+    "devDependencies": {
+        "@types/dotenv": "^8.2.0",
+        "@types/node": "^8.0.29",
+        "ts-node-dev": "^1.0.0-pre.44"
+    },
+    "dependencies": {
+        "@types/graphql": "^14.5.0",
+        "@types/graphql-type-json": "^0.3.2",
+        "@types/jsonwebtoken": "^8.3.5",
+        "@types/node-fetch": "^2.5.4",
+        "apollo-server-express": "^2.9.15",
+        "express": "^4.17.1",
+        "graphql": "^14.5.8",
+        "graphql-type-json": "^0.3.1",
+        "immer": "^5.1.0",
+        "jsonwebtoken": "^8.5.1",
+        "node-fetch": "^2.6.0",
+        "pg": "^7.3.0",
+        "reflect-metadata": "^0.1.10",
+        "ts-node": "3.3.0",
+        "type-graphql": "^0.17.6",
+        "typedi": "^0.8.0",
+        "typeorm": "0.2.22",
+        "typeorm-typedi-extensions": "^0.2.3",
+        "typescript": "3.3.3333"
+    },
+    "scripts": {
+        "start:dev": "tsnd --no-notify src/index.ts",
+        "build": "tsc",
+        "postinstall": "npm run build",
+        "start": "node dist/index.js"
+    }
 }

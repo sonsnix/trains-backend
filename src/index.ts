@@ -1,5 +1,8 @@
 import "reflect-metadata";
-import { createConnection } from "typeorm";
+import * as TypeORM from "typeorm";
+import { Container } from "typedi";
+import * as TypeGraphQL from "type-graphql";
+
 import * as express from "express";
 import { ApolloServer } from "apollo-server-express";
 
@@ -7,69 +10,74 @@ import * as jwt from "jsonwebtoken";
 
 const dotenv = require("dotenv");
 
-import { typeDefs } from "./typeDefs";
-import { resolvers } from "./resolvers";
+import { UserResolver } from "./resolvers/user-resolver";
+import { GameResolver } from "./resolvers/game-resolver";
 
-import { User } from "./entity/User";
-import { Game } from "./entity/Game";
+import { initialState } from "./models/state";
+import { User } from "./entities/user";
+import { Game } from "./entities/game";
 
 dotenv.config();
+TypeORM.useContainer(Container);
 
 const getUser = (token: string) => {
-    try {
-        if (token) {
-            return jwt.verify(token.split(' ')[1], process.env.JWT_SECRET as string)
-        }
-        return null
-    } catch (err) {
-        return null
+  try {
+    if (token) {
+      return jwt.verify(token.split(" ")[1], process.env.JWT_SECRET as string);
     }
+    return null;
+  } catch (err) {
+    return null;
+  }
+};
+
+async function seedDatabase() {
+  const game = new Game();
+  game.name = "First game!";
+  game.state = initialState();
+  await game.save();
+
+  let user = new User();
+  user.id = "github/Hans";
+  user.name = "Hans";
+  user.games = [game];
+  await user.save();
+
+  user = new User();
+  user.id = "github/Horst";
+  user.name = "Horst";
+  user.games = [game];
+  await user.save();
 }
 
 const startServer = async () => {
-    const server = new ApolloServer({
-        typeDefs,
-        resolvers,
-        context: ({ req }) => {
-            const token = req.headers.authorization || ''
-            const user = getUser(token);
+  await TypeORM.createConnection();
 
-            return { models: { User, Game }, user };
-        },
-        introspection: true,
-        playground: true,
-    });
+  const schema = await TypeGraphQL.buildSchema({
+    resolvers: [UserResolver, GameResolver],
+    container: Container,
+  });
 
-    await createConnection();
+  console.log(schema);
 
-    const game = new Game();
-    game.name = "First game!";
-    game.state = "{}";
-    await game.save();
+  const server = new ApolloServer({
+    schema,
+    context: ({ req }) => {
+      const token = req.headers.authorization || "";
+      const user = getUser(token);
 
-    console.log(game);
+      return { user };
+    },
+    introspection: true,
+    playground: true,
+  });
 
-    let user = new User();
-    user.id = "github/Hans";
-    user.name = "Hans";
-    user.games = [game];
-    await user.save();
+  await seedDatabase();
 
-    user = new User();
-    user.id = "github/Horst";
-    user.name = "Horst";
-    user.games = [game];
-    await user.save();
+  const app = express();
+  server.applyMiddleware({ app });
 
-    console.log(game);
-
-    const app = express();
-
-    server.applyMiddleware({ app });
-
-    app.listen({ port: process.env.PORT || 4000 }, () =>
-        console.log(`Server ready`)
-    );
+  app.listen({ port: process.env.PORT || 4000 }, () => console.log(`Server ready`));
 };
 
 startServer();

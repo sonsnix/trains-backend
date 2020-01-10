@@ -1,37 +1,36 @@
-import fetch from 'node-fetch';
-import { AuthenticationError } from 'apollo-server-express';
+import fetch from "node-fetch";
+import { AuthenticationError } from "apollo-server-express";
 import * as jwt from "jsonwebtoken";
+import { Repository } from "typeorm";
+import { User } from "../entities/user";
 
 type Credentials = {
-    client_id: string,
-    client_secret: string,
-    code: string
-}
+    client_id: string;
+    client_secret: string;
+    code: string;
+};
 
 type GithubResponse = {
-    name: string,
-    login: string,
-    access_token?: string
-}
+    name: string;
+    login: string;
+    access_token?: string;
+};
 
-const requestGithubToken = (credentials: Credentials) =>
-    fetch("https://github.com/login/oauth/access_token", {
+const requestGithubToken = async (credentials: Credentials): Promise<{access_token: string}> => {
+    const res = await fetch("https://github.com/login/oauth/access_token", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Accept: "application/json"
+            "Accept": "application/json",
         },
-        body: JSON.stringify(credentials)
-    })
-        .then(res => res.json())
-        .catch(error => {
-            throw new Error(JSON.stringify(error));
-        });
+        body: JSON.stringify(credentials),
+    });
+
+    return res.json();
+};
 
 const requestGithubUserAccount = (token: string) =>
-    fetch(`https://api.github.com/user?access_token=${token}`).then(
-        res => res.json() as Promise<GithubResponse>
-    );
+    fetch(`https://api.github.com/user?access_token=${token}`).then((res) => res.json() as Promise<GithubResponse>);
 
 const requestGithubUser = async (credentials: Credentials): Promise<GithubResponse> => {
     const { access_token } = await requestGithubToken(credentials);
@@ -40,23 +39,23 @@ const requestGithubUser = async (credentials: Credentials): Promise<GithubRespon
     return { ...githubUser, access_token: access_token };
 };
 
-const authorizeWithGithub = async (args: { code: string }, context: any): Promise<String> => {
+const authorizeWithGithub = async (code: string, userRepository: Repository<User>): Promise<String> => {
     const githubUser = await requestGithubUser({
         client_id: process.env.GITHUB_CLIENT_ID!,
         client_secret: process.env.GITHUB_CLIENT_SECRET!,
-        code: args.code
+        code,
     });
 
     if (!githubUser.login) {
         throw new AuthenticationError("Authentication failed.");
     }
 
-    let user = new context.models.User();
+    let user = new User();
     user.id = "github/" + githubUser.login;
     user.name = githubUser.login;
-    await user.save();
+    await userRepository.save(user);
 
-    return jwt.sign({id: user.id, name: user.name}, process.env.JWT_SECRET as string);
-}
+    return jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET as string);
+};
 
 export default authorizeWithGithub;
