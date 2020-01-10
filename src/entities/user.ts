@@ -13,7 +13,7 @@ export class User extends BaseEntity {
     @Column()
     name: string;
 
-    @Field(_type => [Game])
+    @Field(_type => [Game], { nullable: true })
     @ManyToMany(
         (_type) => Game,
         (game) => game.players,

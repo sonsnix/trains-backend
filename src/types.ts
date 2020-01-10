@@ -1,5 +1,7 @@
-import { User } from "./entities/user";
-
 export interface Context {
-  user?: User;
+  user?: string;
+}
+
+export interface AuthInfoRequest extends Request {
+  user: string;
 }

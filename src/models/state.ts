@@ -1,5 +1,5 @@
 import produce from "immer";
-import { tilesInitialState } from "./data";
+// import { tilesInitialState } from "./data";
 import {Game} from "../entities/game";
 
 enum GamePhase {
@@ -9,10 +9,10 @@ enum GamePhase {
 
 export type GameState = {
   [key: string]: any;
-  map: { tiles: { [key: string]: TileType } };
-  companies: { [key: string]: Company };
-  players: { [key: string]: Player };
-  game: {
+  map?: { tiles: { [key: string]: TileType } };
+  companies?: { [key: string]: Company };
+  players?: { [key: string]: Player };
+  misc: {
     curCompany: string;
     curPhase: GamePhase;
     curPlayer: string;
@@ -42,9 +42,9 @@ type Player = {
   shares: { [key: string]: number };
 };
 
-type Players = {
-  [key: string]: Player;
-};
+// type Players = {
+//   [key: string]: Player;
+// };
 
 type TileType = {
   type: string;
@@ -73,15 +73,15 @@ export const submitStockTurn = async (_args: { actions: Action[] }, context: any
 };
 
 export const initialState = (): GameState => {
-  const players: Players = {
-    "github/Hans": {
-      name: "Hans",
-      cash: 1000,
-      shares: {
-        sanuki: 5,
-      },
-    },
-  };
+  // const players: Players = {
+  //   "github/Hans": {
+  //     name: "Hans",
+  //     cash: 1000,
+  //     shares: {
+  //       sanuki: 5,
+  //     },
+  //   },
+  // };
 
   const game = {
     curCompany: "sanuki",
@@ -108,11 +108,13 @@ export const initialState = (): GameState => {
     };
   }
 
+  // const tiles = tilesInitialState;
+
   const state: GameState = {
-    map: { tiles: tilesInitialState },
-    players: players,
-    companies: companies,
-    game: game,
+    // map: { tiles: tilesInitialState },
+    // players: players,
+    // companies: companies,
+    misc: game,
   };
 
   return state;

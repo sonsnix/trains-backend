@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, Mutation, Root, FieldResolver } from "type-graphql";
+import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
@@ -28,13 +28,14 @@ export class GameResolver {
     return this.gameRepository.find({ relations: ["players"] });
   }
 
-  @FieldResolver(_returns => String)
-  state(@Root() game: Game) {
-      return JSON.stringify(game);
-  }
-
   @Mutation((_returns) => String)
-  submitStockTurn() {
+  async submitStockTurn() {
+    const game = await this.gameRepository.findOne();
+
+    if(!game) return "";
+
+    game.state.misc.curPlayer = "Freddy";
+    this.gameRepository.save(game);
     return "";
   }
 

@@ -37,7 +37,7 @@ export class UserResolver {
 
   @Query((_returns) => User, { nullable: true })
   me(@Ctx() { user }: Context) {
-    return this.userRepository.findOne({ where: { id: user!.id } });
+    return this.userRepository.findOne({ where: { id: user! } });
   }
 
   @Mutation(_returns => String)

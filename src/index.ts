@@ -4,9 +4,11 @@ import { Container } from "typedi";
 import * as TypeGraphQL from "type-graphql";
 
 import * as express from "express";
-import { ApolloServer } from "apollo-server-express";
+import * as expressJwt from "express-jwt";
 
-import * as jwt from "jsonwebtoken";
+// import * as jwt from "jsonwebtoken";
+
+import { ApolloServer } from "apollo-server-express";
 
 const dotenv = require("dotenv");
 
@@ -17,19 +19,21 @@ import { initialState } from "./models/state";
 import { User } from "./entities/user";
 import { Game } from "./entities/game";
 
+import {AuthInfoRequest} from "./types";
+
 dotenv.config();
 TypeORM.useContainer(Container);
 
-const getUser = (token: string) => {
-  try {
-    if (token) {
-      return jwt.verify(token.split(" ")[1], process.env.JWT_SECRET as string);
-    }
-    return null;
-  } catch (err) {
-    return null;
-  }
-};
+// const getUser = (token: string) => {
+//   try {
+//     if (token) {
+//       return jwt.verify(token.split(" ")[1], process.env.JWT_SECRET as string);
+//     }
+//     return null;
+//   } catch (err) {
+//     return null;
+//   }
+// };
 
 async function seedDatabase() {
   const game = new Game();
@@ -62,10 +66,9 @@ const startServer = async () => {
 
   const server = new ApolloServer({
     schema,
-    context: ({ req }) => {
-      const token = req.headers.authorization || "";
-      const user = getUser(token);
-
+    context: ({ req }: {req: AuthInfoRequest}) => {
+      const user = req.user;
+      
       return { user };
     },
     introspection: true,
@@ -75,7 +78,17 @@ const startServer = async () => {
   await seedDatabase();
 
   const app = express();
-  server.applyMiddleware({ app });
+
+  app.use(
+    process.env.GRAPHQL_PATH!,
+    expressJwt({
+      secret: process.env.JWT_SECRET!,
+      credentialsRequired: false,
+    }),
+  );
+  
+
+  server.applyMiddleware({ app, path: process.env.GRAPHQL_PATH });
 
   app.listen({ port: process.env.PORT || 4000 }, () => console.log(`Server ready`));
 };

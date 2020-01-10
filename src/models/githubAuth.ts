@@ -55,7 +55,7 @@ const authorizeWithGithub = async (code: string, userRepository: Repository<User
     user.name = githubUser.login;
     await userRepository.save(user);
 
-    return jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET as string);
+    return jwt.sign(user.id, process.env.JWT_SECRET as string);
 };
 
 export default authorizeWithGithub;
