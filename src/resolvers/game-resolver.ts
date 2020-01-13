@@ -1,9 +1,11 @@
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, FieldResolver, Root } from "type-graphql";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
+import produce from "immer";
 
 // import { User } from "../entities/user";
 import { Game } from "../entities/game";
+import { GameState } from "./types/game-state";
 // import { Context } from "../types";
 
 // import { submitCompanyTurn, submitStockTurn } from "./models/state";
@@ -32,15 +34,25 @@ export class GameResolver {
   async submitStockTurn() {
     const game = await this.gameRepository.findOne();
 
-    if(!game) return "";
+    if (!game) return "";
 
-    game.state.misc.curPlayer = "Freddy";
-    this.gameRepository.save(game);
+    const newState = produce(game.history[game.history.length - 1], (state) => {
+      state.misc.curPlayer = "Freddy Mercury";
+    });
+
+    game.history.push(newState);
+    await this.gameRepository.save(game);
+
     return "";
   }
 
   @Mutation((_returns) => String)
   submitCompanyTurn() {
     return "";
+  }
+
+  @FieldResolver((_type) => GameState)
+  state(@Root() game: Game) {
+    return game.history[game.history.length - 1];
   }
 }

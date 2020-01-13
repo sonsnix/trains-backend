@@ -15,9 +15,9 @@ export class Game extends BaseEntity {
   @Column()
   name: string;
 
-  @Field()
-  @Column({ type: "json" })
-  state: GameState;
+  @Field(_type => [GameState])
+  @Column({type: "json"})
+  history: GameState[];
 
   @Field((_type) => [User], { nullable: true })
   @ManyToMany(

@@ -15,7 +15,7 @@ const dotenv = require("dotenv");
 import { UserResolver } from "./resolvers/user-resolver";
 import { GameResolver } from "./resolvers/game-resolver";
 
-import { initialState } from "./models/state";
+import { initialState } from "./resolvers/types/game-state";
 import { User } from "./entities/user";
 import { Game } from "./entities/game";
 
@@ -38,7 +38,7 @@ TypeORM.useContainer(Container);
 async function seedDatabase() {
   const game = new Game();
   game.name = "First game!";
-  game.state = initialState();
+  game.history = [initialState()];
   await game.save();
 
   let user = new User();

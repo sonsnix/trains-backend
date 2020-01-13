@@ -1,4 +1,4 @@
-export { tilesInitialState, tilesData };
+export { tilesInitialState, tilesData  };
 
 interface TilesData {
     [key: string]: {
