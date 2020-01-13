@@ -38,7 +38,7 @@ TypeORM.useContainer(Container);
 async function seedDatabase() {
   const game = new Game();
   game.name = "First game!";
-  game.history = [initialState()];
+  game.states = [initialState()];
   await game.save();
 
   let user = new User();
@@ -68,7 +68,8 @@ const startServer = async () => {
     schema,
     context: ({ req }: {req: AuthInfoRequest}) => {
       const user = req.user;
-      
+      console.log(user);
+
       return { user };
     },
     introspection: true,

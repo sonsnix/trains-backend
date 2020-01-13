@@ -7,7 +7,7 @@ import { GameState } from "../resolvers/types/game-state";
 @Entity()
 @ObjectType()
 export class Game extends BaseEntity {
-  @Field((_type) => String)
+  @Field()
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -17,7 +17,7 @@ export class Game extends BaseEntity {
 
   @Field(_type => [GameState])
   @Column({type: "json"})
-  history: GameState[];
+  states: GameState[];
 
   @Field((_type) => [User], { nullable: true })
   @ManyToMany(

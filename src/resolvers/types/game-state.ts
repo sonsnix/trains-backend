@@ -1,8 +1,7 @@
 import { ObjectType, Field } from "type-graphql";
-import { GraphQLJSONObject } from "graphql-type-json";
 
 @ObjectType()
-export class GameStateMisc {
+export class Status {
   @Field()
   curCompany: string;
 
@@ -10,10 +9,25 @@ export class GameStateMisc {
   curPhase: string;
 
   @Field()
-  curPlayer: string;
+  curPriority: number;
+
+  @Field((_type) => [Number])
+  playerOrder: number[];
 
   @Field()
   curTrainPhase: number;
+}
+
+@ObjectType()
+export class GameState {
+  @Field()
+  status: Status;
+
+  @Field((_type) => [Company])
+  companies: Company[];
+
+  @Field((_type) => [Player])
+  players: Player[];
 }
 
 @ObjectType()
@@ -24,8 +38,20 @@ export class Player {
   @Field()
   cash: number;
 
-  @Field((_type) => GraphQLJSONObject)
-  shares: { [key: string]: number };
+  @Field((_type) => [Share])
+  shares: Share[];
+
+  @Field()
+  passed: boolean;
+}
+
+@ObjectType()
+export class Share {
+  @Field()
+  id: string;
+
+  @Field()
+  amount: number;
 }
 
 @ObjectType()
@@ -46,40 +72,44 @@ export class Company {
   floated: false;
 
   @Field()
-  parValue: number;
+  parValue?: number;
 
   @Field()
   stockLeft: number;
 }
 
-@ObjectType()
-export class GameState {
-  @Field()
-  misc: GameStateMisc;
-
-  @Field((_type) => [Company])
-  companies: Company[];
-
-  @Field((_type) => [Player])
-  players: Player[];
-}
-
 export const initialState = (): GameState => {
   const players: Player[] = [
     {
+      id: "github/sonsnix",
+      cash: 1000,
+      shares: [
+        {
+          id: "sanuki",
+          amount: 5,
+        },
+      ],
+      passed: false,
+    },
+    {
       id: "github/Hans",
       cash: 1000,
-      shares: {
-        sanuki: 5,
-      },
+      shares: [
+        {
+          id: "sanuki",
+          amount: 5,
+        },
+      ],
+      passed: false,
     },
   ];
 
-  const game = {
+  const status = {
     curCompany: "sanuki",
-    curPhase: "track",
-    curPlayer: "github/Hans",
+    curPhase: "stock",
+    curPriority: 0,
     curTrainPhase: 4,
+    playerOrder: [0, 1]
   };
 
   const companies: Company[] = [];
@@ -103,9 +133,9 @@ export const initialState = (): GameState => {
 
   const state: GameState = {
     // map: { tiles: tilesInitialState },
-    players: players,
-    companies: companies,
-    misc: game,
+    players,
+    companies,
+    status,
   };
 
   console.log(state);
