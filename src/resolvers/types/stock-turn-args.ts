@@ -1,16 +1,19 @@
-import {  Field, InputType } from "type-graphql";
+import {  Field, InputType, registerEnumType } from "type-graphql";
 
 @InputType()
 export class StockOrder {
-  @Field()
-  type: string;
+
+  @Field(_type => StockOrderType)
+  type: StockOrderType;
 
   @Field()
-  share: string;
+  companyId: string;
 
+  // amount only necessary for sell order
   @Field()
-  amount: number;
+  amount?: number;
 
+  // value only necessary for initial bid
   @Field({ nullable: true })
   value?: number;
 }
@@ -23,3 +26,13 @@ export class StockTurnArgs {
   @Field()
   gameId: string;
 }
+
+export enum StockOrderType {
+  BUY_INITIAL = "buyInitial",
+  BUY_MARKET = "buyMarket",
+  SELL = "sell"
+}
+
+registerEnumType(StockOrderType, {
+  name: "StockOrderType",
+});

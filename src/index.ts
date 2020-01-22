@@ -20,6 +20,7 @@ import { User } from "./entities/user";
 import { Game } from "./entities/game";
 
 import {AuthInfoRequest} from "./types";
+import { CompanyResolver } from "./resolvers/company-resolver";
 
 dotenv.config();
 TypeORM.useContainer(Container);
@@ -58,7 +59,7 @@ const startServer = async () => {
   await TypeORM.createConnection();
 
   const schema = await TypeGraphQL.buildSchema({
-    resolvers: [UserResolver, GameResolver],
+    resolvers: [UserResolver, GameResolver, CompanyResolver],
     container: Container,
   });
 
@@ -67,7 +68,7 @@ const startServer = async () => {
   const server = new ApolloServer({
     schema,
     context: ({ req }: {req: AuthInfoRequest}) => {
-      const user = req.user;
+      const user = "github/sonsnix" || req.user;
       console.log(user);
 
       return { user };
