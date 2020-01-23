@@ -120,7 +120,7 @@ export const initialState = (): GameState => {
     curPhase: "stock",
     curPriority: 0,
     curTrainPhase: 4,
-    playerOrder: [0, 1],
+    playerOrder: [1, 0],
   };
 
   const companies: Company[] = [];
@@ -133,7 +133,6 @@ export const initialState = (): GameState => {
     ["tosa_electric", "Tosa Electric Rail"],
     ["tosa", "Tosa Kuroshio Railroad"],
     ["uwajima", "Uwajima Railroad"],
-
   ]) {
     companies.push({
       id: company[0],
@@ -168,10 +167,11 @@ export async function submitStockTurnHelper(
 ): Promise<GameState> {
   if (state.status.curPhase != "stock") throw new Error("Game is not in the stock phase");
 
-  const player = state.players.find((player) => player.id == user);
+  // const player = state.players.find((player) => player.id == user);
+  const player = state.players[state.status.playerOrder[0]];
 
   if (!player) throw new Error(`Player ${user} couldn't be found in game.`);
-  if (state.status.playerOrder[0] != state.players.indexOf(player)) throw new Error("It's not the player's turn");
+  // if (state.status.playerOrder[0] != state.players.indexOf(player)) throw new Error("It's not the player's turn");
 
   player.passed = !args.orders;
 
@@ -179,16 +179,18 @@ export async function submitStockTurnHelper(
     await processOrder(state, order, player);
   }
 
+  state.status.playerOrder.shift();
+
   // check if all players have passed; if yes, initialize new round
   if (state.players.every((player) => player.passed)) {
     intializeTrackRound(state);
-  } else {
-    if (!state.players.length) {
-      const playerNumbers = [...state.players.keys()];
-      state.status.playerOrder = playerNumbers
-        .slice(state.status.curPriority, state.players.length)
-        .concat(playerNumbers.slice(0, state.status.curPriority));
-    }
+    console.log("All players have passed");
+  } else if (!state.status.playerOrder.length) {
+    console.log("Players all finished turn, refill player order");
+    const playerNumbers = [...state.players.keys()];
+    state.status.playerOrder = playerNumbers
+      .slice(state.status.curPriority, state.players.length)
+      .concat(playerNumbers.slice(0, state.status.curPriority));
   }
 
   return state;
@@ -245,7 +247,7 @@ async function processOrder(state: GameState, order: StockOrder, player: Player)
     if (!order.amount) throw new Error("Amount of shares to be sold has to be specified");
 
     const share = player.shares.find((share) => share.id == company.id);
-    
+
     if (!share || share.amount < order.amount) throw new Error("Player doesn't have enough shares to sell");
 
     if (company.initialOffer + company.market + order.amount > 8)

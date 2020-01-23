@@ -32,7 +32,7 @@ export class GameResolver {
   @Mutation((_returns) => GameState, { nullable: true })
   async submitStockTurn(
     @Arg("args", (_type) => StockTurnArgs) args: StockTurnArgs,
-    @Ctx() { user }: Context,
+    @Ctx() { user, req, res }: Context,
   ): Promise<GameState> {
     if (!user) throw new Error("Not logged in.");
 
@@ -42,7 +42,7 @@ export class GameResolver {
     if (!game) throw new Error(`Game ${args.gameId} couldn't be found.`);
 
     const newState: GameState = await produce(game.states[game.states.length - 1], async (draftState: GameState) => {
-      await submitStockTurnHelper(args, { user }, draftState);
+      await submitStockTurnHelper(args, { user, req, res }, draftState);
     });
 
     game.states.push(newState);

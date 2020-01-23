@@ -4,9 +4,9 @@ import { Container } from "typedi";
 import * as TypeGraphQL from "type-graphql";
 
 import * as express from "express";
-import * as expressJwt from "express-jwt";
+import * as cookieParser from "cookie-parser";
 
-// import * as jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 
 import { ApolloServer } from "apollo-server-express";
 
@@ -19,22 +19,11 @@ import { initialState } from "./resolvers/types/game-state";
 import { User } from "./entities/user";
 import { Game } from "./entities/game";
 
-import {AuthInfoRequest} from "./types";
 import { CompanyResolver } from "./resolvers/company-resolver";
+import { Context } from "./types";
 
 dotenv.config();
 TypeORM.useContainer(Container);
-
-// const getUser = (token: string) => {
-//   try {
-//     if (token) {
-//       return jwt.verify(token.split(" ")[1], process.env.JWT_SECRET as string);
-//     }
-//     return null;
-//   } catch (err) {
-//     return null;
-//   }
-// };
 
 async function seedDatabase() {
   const game = new Game();
@@ -63,15 +52,21 @@ const startServer = async () => {
     container: Container,
   });
 
-  console.log(schema);
-
   const server = new ApolloServer({
     schema,
-    context: ({ req }: {req: AuthInfoRequest}) => {
-      const user = "github/sonsnix" || req.user;
+    context: ({ req, res }: Context): Context => {
+      let user: string;
+
+      try {
+        const token = (req as any).cookies["access_token"];
+        user = jwt.verify(token, process.env.JWT_SECRET as string) as string;
+      } catch (e) {
+        user = "github/Hans";
+      }
+
       console.log(user);
 
-      return { user };
+      return { user, req, res };
     },
     introspection: true,
     playground: true,
@@ -81,16 +76,16 @@ const startServer = async () => {
 
   const app = express();
 
-  app.use(
-    process.env.GRAPHQL_PATH!,
-    expressJwt({
-      secret: process.env.JWT_SECRET!,
-      credentialsRequired: false,
-    }),
-  );
-  
+  app.use(cookieParser());
 
-  server.applyMiddleware({ app, path: process.env.GRAPHQL_PATH });
+  server.applyMiddleware({
+    app,
+    path: process.env.GRAPHQL_PATH,
+    cors: {
+      credentials: true,
+      origin: "http://localhost:3000",
+    },
+  });
 
   app.listen({ port: process.env.PORT || 4000 }, () => console.log(`Server ready`));
 };
