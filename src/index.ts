@@ -15,7 +15,7 @@ const dotenv = require("dotenv");
 import { UserResolver } from "./resolvers/user-resolver";
 import { GameResolver } from "./resolvers/game-resolver";
 
-import { initialState } from "./resolvers/types/game-state";
+import { initialState } from "./models/game-state";
 import { User } from "./entities/user";
 import { Game } from "./entities/game";
 

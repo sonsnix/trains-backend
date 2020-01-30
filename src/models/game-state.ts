@@ -1,7 +1,8 @@
 import { ObjectType, Field, Int } from "type-graphql";
-import { adjustStock, AdjustStockAction, getStockValue } from "../models/stockMarket";
+import { adjustStock, AdjustStockAction, getStockValue } from "./stock-market";
 import { StockTurnArgs, StockOrderType, StockOrder } from "./stock-turn-args";
-import { Context } from "../../types";
+import { Context } from "../types";
+import { tilesInitialState } from "../data";
 
 @ObjectType()
 export class Status {
@@ -22,6 +23,18 @@ export class Status {
 }
 
 @ObjectType()
+export class Tile {
+  @Field()
+  id: string;
+
+  @Field()
+  type: string;
+
+  @Field()
+  rotation: number;
+}
+
+@ObjectType()
 export class GameState {
   @Field()
   status: Status;
@@ -31,6 +44,9 @@ export class GameState {
 
   @Field((_type) => [Player])
   players: Player[];
+
+  @Field((_type) => [Tile])
+  tiles: Tile[];
 }
 
 @ObjectType()
@@ -146,10 +162,16 @@ export const initialState = (): GameState => {
     });
   }
 
-  // const tiles = tilesInitialState;
+  const tiles = Object.entries(tilesInitialState).map(([loc, tile]) => {
+    return {
+      id: loc,
+      type: tile.type,
+      rotation: tile.rotation,
+    };
+  });
 
   const state: GameState = {
-    // map: { tiles: tilesInitialState },
+    tiles,
     players,
     companies,
     status,
@@ -173,7 +195,7 @@ export async function submitStockTurnHelper(
   if (!player) throw new Error(`Player ${user} couldn't be found in game.`);
   // if (state.status.playerOrder[0] != state.players.indexOf(player)) throw new Error("It's not the player's turn");
 
-  player.passed = !args.orders;
+  player.passed = args.orders.length === 0;
 
   for (const order of args.orders) {
     await processOrder(state, order, player);

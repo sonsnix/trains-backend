@@ -4,8 +4,8 @@ import { InjectRepository } from "typeorm-typedi-extensions";
 
 // import { User } from "../entities/user";
 import { Game } from "../entities/game";
-import { GameState, submitStockTurnHelper } from "./types/game-state";
-import { StockTurnArgs } from "./types/stock-turn-args";
+import { GameState, submitStockTurnHelper } from "../models/game-state";
+import { StockTurnArgs } from "../models/stock-turn-args";
 import { Context } from "../types";
 import produce from "immer";
 

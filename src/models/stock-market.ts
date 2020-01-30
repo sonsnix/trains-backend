@@ -1,4 +1,4 @@
-import { Company } from "../types/game-state";
+import { Company } from "./game-state";
 
 export enum AdjustStockAction {
   WITHHOLD = "withhold",

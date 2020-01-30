@@ -2,7 +2,7 @@ import { Entity, Column, BaseEntity, PrimaryGeneratedColumn, ManyToMany } from "
 import { ObjectType, Field } from "type-graphql";
 
 import { User } from "./user";
-import { GameState } from "../resolvers/types/game-state";
+import { GameState } from "../models/game-state";
 
 @Entity()
 @ObjectType()

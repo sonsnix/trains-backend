@@ -1,6 +1,6 @@
-import { Company } from "./types/game-state";
+import { Company } from "../models/game-state";
 import { Resolver, FieldResolver, Int, Root } from "type-graphql";
-import { getStockValue } from "./models/stockMarket";
+import { getStockValue } from "../models/stock-market";
 
 @Resolver(Company)
 export class CompanyResolver {
